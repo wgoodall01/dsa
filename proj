@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+
+proj_fatal(){
+	echo "proj:" "$@"
+	return 1
+}
+
+# Update all repos listed in ./manifest
+proj_update()(
+	if [[ $# != 0 ]]; then
+		cat <<EOF
+proj update - updates project repos
+
+Usage:
+	proj update
+
+'proj update' will:
+	clone, or fetch commits, for every repo in ./manifest
+
+EOF
+	fi
+
+	local success=true
+
+	while read -r name; do
+		local dir="$root/src/dsa-$name"
+		if [[ ${#name} -eq 0 ]]; then
+			: # Skip, blank line in manifest
+		elif [[ -d "$dir" ]]; then
+			echo "--- Updating $name..."
+			pushd "$dir" >/dev/null
+			git fetch --all || success=false
+			popd >/dev/null
+			echo ""
+		else
+			echo "--- Cloning $name..."
+			pushd "$root/src" >/dev/null
+			git clone "dsa-$name" || success=false
+			popd >/dev/null
+			echo ""
+		fi
+	done <"$root/manifest"
+
+	if ! $success; then
+		echo "Completed with errors. Check log for details."
+	fi
+)
+
+# Create and template a repo.
+proj_new()(
+	if [[ $# != 1 || $1 == "--help" ]]; then
+		cat <<EOF
+proj new - Creates a new assignment
+
+Usage:
+	proj new <name>
+
+Arguments:
+	name    Name of the project to add.
+
+'proj new' will:
+	create ./src/dsa-<name>
+	initialize a git repo there
+	copy template files from ./template, replacing {name} anywhere with <name>
+	create <user>/dsa-<name> on GitHub
+	commit the template files, and push them.
+EOF
+		return
+	fi
+
+	local name="$1"
+
+	hub --version >/dev/null || proj_fatal "hub not installed"
+
+	repo_path="$root/src/dsa-$name"
+	[[ -d "$repo_path" ]] && proj_fatal "repo already exists in src/dsa-$name"
+	mkdir -p "$repo_path"
+	pushd "$repo_path" >/dev/null
+	echo "Creating repo in $repo_path"
+
+	# Create the git repo
+	git init
+	local repo_url
+	repo_url="$(hub create -p -d "dsa: $name")" # if already exists, it sets the 'origin' remote.
+	echo "Repository created at $repo_url"
+
+	# Is there anything there?
+	git fetch origin
+	commit_count="$(git rev-list --all --count)"
+	
+	if [[ "$commit_count" -eq 0 ]]; then
+		echo "Repository is empty. Templating files..."
+
+		# Template files for new project
+		cp -r "$root"/template/* "$repo_path";
+		rm -rf\
+			"$repo_path/CMakeCache.txt"\
+			"$repo_path/CMakeFiles"\
+			"$repo_path/cmake_install.cmake"\
+			"$repo_path/{name}" # Delete some stuff which munges up cmake
+
+		find "$repo_path" -type f -exec sed -i \
+			-e "s/{name}/$name/g" \
+			-e "s/{Name}/${name^}/g" \
+			{} \;
+
+		# Make the initial commit with the template files, and push it.
+		git add .
+		git commit -m "dsa: template files for $name"
+		git push -u origin master
+	else
+		echo "Commits already present at origin/master."
+		echo "Pulling changes from origin/master..."
+		git pull origin master
+	fi
+
+	# add the repo to the manifest, sort/uniq it.
+	echo "$name" >> "$root/manifest"
+	sort -u -o "$root/manifest" "$root/manifest"
+
+	# Run CMake to generate some things.
+	cmake .
+
+	popd >/dev/null
+)
+
+proj()(
+	set -ue
+	shopt -s dotglob
+
+	local root
+	root="$DSA_PROJ_ROOT"
+
+	if [[ $# -lt 1 ]]; then
+		cat <<EOF 
+proj - Manage projects for Data Structures and Algorithms
+
+Usage: 
+	proj <subcommand> [args]
+
+Subcommands:
+	new     Add a project to ./src, fills it with a template, and pushes it to GitHub
+	update  Clones all projects listed in ./manifest into ./src, and fetches new commits.
+
+EOF
+		return
+	fi
+
+	local subcommand="$1"
+	shift
+
+	case $subcommand in
+		"")
+			proj_usage
+			;;
+		"new")
+			proj_new "$@"
+			;;
+		"update")
+			proj_update "$@"
+			;;
+		*)
+			echo "proj: unknown subcommand $subcommand"
+			;;
+	esac
+)
+
+DSA_PROJ_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/" && pwd )"
+
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+	echo "defined function 'proj'"
+else
+	proj "$@"
+fi
