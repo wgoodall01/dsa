@@ -35,7 +35,7 @@ EOF
 		else
 			echo "--- Cloning $name..."
 			pushd "$root/src" >/dev/null
-			git clone "dsa-$name" || success=false
+			hub clone "dsa-$name" || success=false
 			popd >/dev/null
 			echo ""
 		fi
@@ -124,6 +124,14 @@ EOF
 	popd >/dev/null
 )
 
+proj_ci()(
+	echo "starting CI scripts on $(date)"
+
+	echo "Shellchecking proj script..."
+	shellcheck "$root/proj"
+	echo "done."
+)
+
 proj()(
 	set -ue
 	shopt -s dotglob
@@ -141,6 +149,7 @@ Usage:
 Subcommands:
 	new     Add a project to ./src, fills it with a template, and pushes it to GitHub
 	update  Clones all projects listed in ./manifest into ./src, and fetches new commits.
+	ci      Runs a battery of tests under CI.
 
 EOF
 		return
@@ -158,6 +167,9 @@ EOF
 			;;
 		"update")
 			proj_update "$@"
+			;;
+		"ci")
+			proj_ci
 			;;
 		*)
 			echo "proj: unknown subcommand $subcommand"
