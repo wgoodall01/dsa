@@ -66,6 +66,7 @@ EOF
 	fi
 
 	local name="$1"
+	local Name="$(tr '[:lower:]' '[:upper:]' <<< ${name:0:1})${name:1}"
 	local repo_path="$root/src/$name"
 
 	# Template files for new project
@@ -74,12 +75,13 @@ EOF
 		"$repo_path/CMakeCache.txt"\
 		"$repo_path/CMakeFiles"\
 		"$repo_path/cmake_install.cmake"\
+		"$repo_path/test_{name}"\
 		"$repo_path/{name}" # Delete some stuff which munges up cmake
 
 	# Edit some files
-	find "$repo_path" -type f -not -iwholename '*.git/*' -exec sed -i '' \
+	LANG=C find "$repo_path" -type f -not -iwholename '*.git/*' -exec sed -i '' \
 		-e "s/{name}/$name/g" \
-		-e "s/{Name}/${name^}/g" \
+		-e "s/{Name}/$Name/g" \
 		{} \;
 }
 
