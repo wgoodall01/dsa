@@ -44,7 +44,7 @@ EOF
 	done <"$root/manifest"
 
 	if ! $success; then
-		echo "Completed with errors. Check log for details."
+		_proj_fatal "completed with errors."
 	fi
 )
 
