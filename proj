@@ -78,11 +78,15 @@ EOF
 		"$repo_path/test_{name}"\
 		"$repo_path/{name}" # Delete some stuff which munges up cmake
 
-	# Edit some files
-	LANG=C find "$repo_path" -type f -not -iwholename '*.git/*' -exec sed -i '' \
+	# Edit some files, leaving a .bak in case of failure
+	LANG=C find "$repo_path" -type f -not -iwholename '*.git/*' -exec\
+		sed -i.bak \
 		-e "s/{name}/$name/g" \
 		-e "s/{Name}/$Name/g" \
 		{} \;
+	
+	# Clean up everything.
+	rm -f "$repo_path"/**/*.bak "$repo_path"/*.bak
 }
 
 proj_clone(){
