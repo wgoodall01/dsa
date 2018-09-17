@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+
+set -ue
+shopt -s dotglob
+
+_lab_fatal(){
+	echo "lab:" "$@"
+	return 1
+}
+
+_lab_spin(){
+	local msg="$1"
+	local cmd="$2"
+	
+	printf "\n%s\nlab$ %s\n" "$msg" "$cmd" >>"$log"
+	eval "($cmd) >>'$log' 2>&1" &
+	pid=$!
+	i=1
+	sp='|\-/'
+	echo -n "$msg  "
+	while ps -p "$pid" >/dev/null; do
+		printf "\b%s" "${sp:i++%${#sp}:1}"
+		sleep 0.01
+	done
+	printf "\b \b";
+
+	set +e # disable error-fail to get error code from bg process
+	wait "$pid"
+	local status="$?"
+	set -e
+
+	echo "[exit status $status]" >>"$log"
+	if [[ "$status" != "0" ]]; then
+		printf "\n\n"
+		#shellcheck disable=2016
+		sed -n 'H; /^lab\$/h; ${g;p;}' <"$log"
+		echo
+		echo "lab: error, see above and _lab.log"
+
+		[[ "$status" != "" ]] && return "$status"
+		return 1
+	else
+		printf "\b [done]\n"
+	fi
+}
+
+lab_build(){
+	if [[ $# -gt 1 || ( $# == 1 && $1 == "--help" ) ]]; then
+		cat <<EOF
+Usage: lab build <target>
+
+<target> is passed directly through to make.
+if <target> is blank, builds all targets.
+EOF
+		return 2
+	fi
+
+	local target;
+	if [[ $# == 1 ]]; then
+		target="$1"
+	else
+		target="all";
+	fi
+
+	mkdir -p "$build"
+
+	# check if cmake has been run yet
+	if [[ ! -e "$build/CMakeCache.txt" ]]; then
+		_lab_spin "running cmake" "cd '$build' && cmake '$root'"
+	fi
+
+	# Build the target
+	_lab_spin "building $target" "cd '$build' && make '$target'"
+}
+
+lab_run(){
+	if [[ $# != 1 ]]; then
+		cat <<EOF
+Usage: lab run <target>
+EOF
+		return 2
+	fi
+
+	local target="$1"
+	
+	lab_build "$target"
+	echo
+
+	"$build/$target"
+}
+
+lab_clean(){
+	if [[ $# != 0 ]]; then
+		cat <<EOF
+Usage: lab clean
+EOF
+		return 2
+	fi
+
+	if [[ -d "$build" ]]; then
+		rm -rf "$build"
+		mkdir -p "$build"
+	fi
+}
+
+lab_main(){
+	lab_run "templateProj"
+}
+
+lab_test(){
+	lab_run "test_templateProj"
+}
+
+root="$( cd "$( dirname "${BASH_SOURCE[0]}" )/" && pwd )"
+build="$root/build"
+log="$root/_lab.log"
+
+if [[ $# -lt 1 ]]; then
+	cat<<EOF
+lab - build labs
+
+Usage: 
+	lab <subcommand> [args]
+
+Subcommands:
+	test      shorthand 'lab run test_templateProj'
+	main      shorthand 'lab run templateProj'
+	clean     delete build files
+	build     build the lab
+	run       build and run the lab
+EOF
+	exit 2
+fi
+
+
+subcommand="$1"
+shift
+
+func_name="lab_$subcommand"
+if [[ "$(type -t "$func_name")" == "function" ]]; then
+	echo "## lab error log on $(date)" > "$log" # truncate logfile
+	"$func_name" "$@"
+else 
+	echo "lab: unknown subcommand $subcommand"
+fi
+

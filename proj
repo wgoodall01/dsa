@@ -73,17 +73,14 @@ EOF
 	# Template files for new project
 	cp -r "$root"/template/* "$repo_path";
 	rm -rf\
-		"$repo_path/CMakeCache.txt"\
-		"$repo_path/CMakeFiles"\
-		"$repo_path/cmake_install.cmake"\
-		"$repo_path/test_{name}"\
-		"$repo_path/{name}" # Delete some stuff which munges up cmake
+		"$repo_path/build"\
+		"$repo_path/_lab.log" # Delete some stuff which munges up cmake
 
 	# Edit some files, leaving a .bak in case of failure
 	LANG=C find "$repo_path" -type f -not -iwholename '*.git/*' -exec\
 		sed -i.bak \
-		-e "s/{name}/$name/g" \
-		-e "s/{Name}/$Name/g" \
+		-e "s/templateProj/$name/g" \
+		-e "s/TemplateProj/$Name/g" \
 		{} \;
 	
 	# Clean up everything.
@@ -147,14 +144,6 @@ EOF
 	(cd "$root/src/$name" && cmake .)>/dev/null
 }
 
-proj_ci()(
-	echo "starting CI scripts on $(date)"
-
-	echo "Shellchecking proj script..."
-	shellcheck -x "$root/proj"
-	echo "done."
-)
-
 proj()(
 	set -ue
 	shopt -s dotglob
@@ -181,7 +170,6 @@ Subcommands:
 	template  Copies over template files into a repo
 	clone     Clones a project fro github, adds to the manifest
 	init      proj clone && proj template
-	ci        Runs a battery of tests under CI.
 
 EOF
 		return 2

@@ -1,17 +1,10 @@
 #include <stdio.h>
-#include <iostream>
-#include <sstream>
 #include <string>
+#include <iostream>
 
-using namespace std;
-
-string greet(string name){
-	ostringstream ss;
-	ss << "Hello, " << name << "!";
-	return ss.str();
-}
+#include "lib.h"
 
 int main(int argc, char *argv[]){
-	std::cout << greet("World") << endl;
+	std::cout << hello("World") << std::endl;
 	return 0;
 }

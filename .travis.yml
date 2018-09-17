@@ -1,20 +1,15 @@
 language: cpp
 sudo: true
 
-# # Grab shellcheck from the Debian repo 
-# addons:
-#   apt:
-#     sources:
-#     - debian-sid 
-#     packages:
-#     - shellcheck
+# Cache homebrew downloads for osx
+cache:
+  directories:
+    - $HOME/Library/Caches/Homebrew
+    - bin
 
-install:
-- sudo apt-get install shellcheck
-- mkdir -p bin
-- wget "https://github.com/github/hub/releases/download/v2.5.0/hub-linux-amd64-2.5.0.tgz" -O /tmp/hub.tar.gz
-- tar -xvf /tmp/hub.tar.gz
-- export PATH=$PATH:$PWD/hub-linux-amd64-2.5.0/bin/
+os:
+- linux
+- osx
 
 script: 
-- ./proj ci
+- ./ci.sh

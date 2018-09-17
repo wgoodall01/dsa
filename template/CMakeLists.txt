@@ -1,8 +1,13 @@
 cmake_minimum_required (VERSION 2.6)
 set(CMAKE_CXX_STANDARD 11)
 
-project ({Name})
+project (TemplateProj)
 
 include_directories(include)
-add_executable({name} main.cpp)
-add_executable(test_{name} test.cpp)
+
+set(srcs
+	lib.cpp
+)
+
+add_executable(templateProj ${srcs} main.cpp)
+add_executable(test_templateProj ${srcs} test.cpp)
