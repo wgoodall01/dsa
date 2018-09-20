@@ -74,9 +74,9 @@ EOF
 }
 
 lab_run(){
-	if [[ $# != 1 ]]; then
+	if [[ $# == 0 ]]; then
 		cat <<EOF
-Usage: lab run <target>
+Usage: lab run <target> [args]
 EOF
 		return 2
 	fi
@@ -86,7 +86,12 @@ EOF
 	lab_build "$target"
 	echo
 
-	"$build/$target"
+	if [[ ! -e "$build/$target" ]]; then
+		_lab_fatal "target '$target' is phony--no executable produced"
+	fi
+
+	shift 1
+	"$build/$target" "$@"
 }
 
 lab_clean(){
@@ -104,11 +109,11 @@ EOF
 }
 
 lab_main(){
-	lab_run "templateProj"
+	lab_run "templateProj" "$@"
 }
 
 lab_test(){
-	lab_run "test_templateProj"
+	lab_run "test_templateProj" "$@"
 }
 
 root="$( cd "$( dirname "${BASH_SOURCE[0]}" )/" && pwd )"
