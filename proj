@@ -144,6 +144,28 @@ EOF
 	(cd "$root/src/$name" && cmake .)>/dev/null
 }
 
+proj_help(){
+		cat <<EOF 
+proj - Manage projects for Data Structures and Algorithms
+
+Usage: 
+	proj <subcommand> [args]
+
+Subcommands:
+	update    clones/fetches all repos in the manifest
+	template  Copies over template files into a repo
+	clone     Clones a project fro github, adds to the manifest
+	init      proj clone && proj template
+	help      show this message
+
+EOF
+}
+
+# dirty hack for ./proj --help
+proj_--help(){
+	proj_help
+}
+
 proj()(
 	set -ue
 	shopt -s dotglob
@@ -159,19 +181,7 @@ proj()(
 	hub --version >/dev/null || _proj_fatal "hub not installed"
 
 	if [[ $# -lt 1 ]]; then
-		cat <<EOF 
-proj - Manage projects for Data Structures and Algorithms
-
-Usage: 
-	proj <subcommand> [args]
-
-Subcommands:
-	update    clones/fetches all repos in the manifest
-	template  Copies over template files into a repo
-	clone     Clones a project fro github, adds to the manifest
-	init      proj clone && proj template
-
-EOF
+		proj_help
 		return 2
 	fi
 
