@@ -20,7 +20,7 @@ _lab_spin(){
 	echo -n "$msg  "
 	while ps -p "$pid" >/dev/null; do
 		printf "\b%s" "${sp:i++%${#sp}:1}"
-		sleep 0.01
+		sleep 0.02
 	done
 	printf "\b \b";
 
