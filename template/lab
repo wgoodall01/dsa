@@ -109,11 +109,19 @@ EOF
 }
 
 lab_main(){
-	lab_run "templateProj" "$@"
+	if [[ -e "$root/main.cpp" ]]; then
+		lab_run "templateProj" "$@"
+	else
+		_lab_fatal "no main found in this lab"
+	fi
 }
 
 lab_test(){
-	lab_run "test_templateProj" "$@"
+	if [[ -e "$root/test.cpp" ]]; then
+		lab_run "test_templateProj" "$@"
+	else
+		_lab_fatal "no tests found for this lab"
+	fi
 }
 
 root="$( cd "$( dirname "${BASH_SOURCE[0]}" )/" && pwd )"

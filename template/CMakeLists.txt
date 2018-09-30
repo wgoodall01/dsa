@@ -9,5 +9,10 @@ set(srcs
 	lib.cpp
 )
 
-add_executable(templateProj ${srcs} main.cpp)
-add_executable(test_templateProj ${srcs} test.cpp)
+if(EXISTS ${CMAKE_SOURCE_DIR}/main.cpp)
+	add_executable(templateProj ${srcs} main.cpp)
+endif()
+
+if(EXISTS ${CMAKE_SOURCE_DIR}/test.cpp)
+	add_executable(test_templateProj ${srcs} test.cpp)
+endif()
