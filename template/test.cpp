@@ -1,10 +1,2 @@
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "lib.hpp"
-#include <iostream>
-
-TEST_CASE("formats 'hello world' correctly") {
-	REQUIRE(hello("World") == "Hello, World!");
-	REQUIRE(hello("Derek") == "Hello, Derek!");
-}
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.hpp"

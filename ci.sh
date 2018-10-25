@@ -54,7 +54,7 @@ printf "\n\n"
 
 # Make sure the template builds and runs
 echo "testing build..."
-(cd template && ./lab build && ./lab test && ./lab main)
+(cd template && ./lab clean && ./lab build && ./lab test -s && ./lab main)
 printf "\n\nBuild log:\n"
 cat template/_lab.log
 

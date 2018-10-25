@@ -7,10 +7,15 @@ include_directories(include)
 
 set(srcs
 	lib.cpp
-)
+	)
 
 if(EXISTS ${CMAKE_SOURCE_DIR}/main.cpp)
 	add_executable(templateProj ${srcs} main.cpp)
+	target_compile_definitions(
+		templateProj
+		PRIVATE
+		DOCTEST_CONFIG_DISABLE
+		)
 endif()
 
 if(EXISTS ${CMAKE_SOURCE_DIR}/test.cpp)
