@@ -11,6 +11,6 @@ cache:
     - linux
     - osx
 
-  script:
-    - ./lab build
-    - ./lab test
+script:
+  - ./lab build
+  - ./lab test
