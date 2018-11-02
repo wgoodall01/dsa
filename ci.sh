@@ -9,7 +9,8 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 	echo "travis_fold:start:setup-linux"
 	echo "Setting up for Travis linux"
 	
-	sudo apt-get install shellcheck
+	# sudo apt-get update
+	# sudo apt-get install shellcheck
 
 	mkdir -p bin
 	if [[ ! -f "bin/hub" ]]; then
@@ -27,7 +28,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx"  ]]; then
 	echo "travis_fold:start:setup-osx"
 	echo "Setting up for Travis osx"
 
-	brew install shellcheck
+	# brew install shellcheck
 
 	mkdir -p bin
 	if [[ ! -f "bin/hub" ]]; then

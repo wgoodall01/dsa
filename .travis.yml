@@ -7,6 +7,14 @@ cache:
     - $HOME/Library/Caches/Homebrew
     - bin
 
+addons:
+  homebrew:
+    packages:
+      - shellcheck
+  apt:
+    packages:
+      - shellcheck
+
 os:
   - linux
   - osx
