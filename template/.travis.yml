@@ -1,5 +1,4 @@
 language: cpp
-sudo: true
 
 # Cache homebrew downloads for osx
 cache:
@@ -7,9 +6,9 @@ cache:
     - $HOME/Library/Caches/Homebrew
     - bin
 
-  os:
-    - linux
-    - osx
+os:
+  - linux
+  - osx
 
 script:
   - ./lab build
