@@ -123,12 +123,13 @@ proj_init(){
 proj init - Sets up a repo for work
 
 Usage:
-	proj clone <repo path (with org) or name>
+	proj init <repo path (with org) or name>
 
-'proj clone' will:
+'proj init' will:
 	run a 'hub clone' to pull down the repo
 	add the repo to the manifest
 	Copy template files to the repo
+	Run an initial build
 
 EOF
 		return 2
@@ -140,8 +141,7 @@ EOF
 	[[ ! -d "$root/src/$name" ]] && proj_clone "$path"
 	proj_template "$name"
 
-	echo "Running cmake"
-	(cd "$root/src/$name" && cmake .)>/dev/null
+	(cd "$root/src/$name" && ./lab build .)
 }
 
 proj_help(){
