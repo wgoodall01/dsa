@@ -113,7 +113,7 @@ EOF
 	cd "$root/src/$name" # useful for the function version
 
 	# add the project to the manifest
-	echo "$path" >> "$root/manifest"
+	echo "$path" | tr '[:upper:]' '[:lower:]' >> "$root/manifest"
 	sort -u -o "$root/manifest" "$root/manifest"
 }
 
@@ -154,7 +154,7 @@ Usage:
 Subcommands:
 	update    clones/fetches all repos in the manifest
 	template  Copies over template files into a repo
-	clone     Clones a project fro github, adds to the manifest
+	clone     Clones a project from github, adds to the manifest
 	init      proj clone && proj template
 	help      show this message
 
