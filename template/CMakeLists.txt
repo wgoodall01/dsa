@@ -9,6 +9,8 @@ set(srcs
 	lib.cpp
 	)
 
+set(CMAKE_BUILD_TYPE Release)
+
 if(EXISTS ${CMAKE_SOURCE_DIR}/main.cpp)
 	add_executable(templateProj ${srcs} main.cpp)
 	target_compile_definitions(

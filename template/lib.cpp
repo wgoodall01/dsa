@@ -1,5 +1,6 @@
 #include "doctest.hpp"
 #include "lib.hpp"
+#include <ostream>
 #include <string>
 
 std::string hello(std::string name) { return "Hello, " + name + "!"; }
