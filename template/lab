@@ -124,6 +124,22 @@ lab_test(){
 	fi
 }
 
+lab_watch(){
+	if [[ $# != 1 ]]; then
+		cat <<EOF
+Usage: lab watch <command>
+
+<command> a lab subcommand, e.g. "test"
+
+Examples: 
+	./lab watch test
+EOF
+		return 2
+	fi
+
+	find "$root" -iname "*.*pp" ! -path "*/build/*" | entr -cs "./lab $1"
+}
+
 root="$( cd "$( dirname "${BASH_SOURCE[0]}" )/" && pwd )"
 build="$root/build"
 log="$root/_lab.log"
@@ -136,8 +152,9 @@ Usage:
 	lab <subcommand> [args]
 
 Subcommands:
-	test      shorthand 'lab run test_templateProj'
-	main      shorthand 'lab run templateProj'
+	test      shorthand 'lab run test_lab-4-2-huffman-encoding-wgoodall01'
+	main      shorthand 'lab run lab-4-2-huffman-encoding-wgoodall01'
+	watch x   watches source files, runs './lab x' on changes
 	clean     delete build files
 	build     build the lab
 	run       build and run the lab
