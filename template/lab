@@ -125,7 +125,7 @@ lab_test(){
 }
 
 lab_watch(){
-	if [[ $# != 1 ]]; then
+	if [[ $# == 0 ]]; then
 		cat <<EOF
 Usage: lab watch <command>
 
@@ -137,7 +137,8 @@ EOF
 		return 2
 	fi
 
-	find "$root" -iname "*.*pp" ! -path "*/build/*" | entr -cs "./lab $1"
+	local cmd="./lab $*"
+	find "$root" -iname "*.*pp" ! -path "*/build/*" | entr -cs "$cmd"
 }
 
 root="$( cd "$( dirname "${BASH_SOURCE[0]}" )/" && pwd )"
